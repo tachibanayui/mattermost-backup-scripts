@@ -31,3 +31,14 @@ KEEP_WEEKLY=5
 
 # Number of monthly backups to keep
 KEEP_MONTHLY=6
+
+# Optional: Mattermost webhook URL for notifications
+# Leave empty if not using notifications
+MATTERMOST_WEBHOOK=""
+
+# Current date and time for log entries
+DATE=$(date +%F-%H%M)
+
+# Log file path for backup and restore operations
+# Ensure the specified path is writable
+LOG_FILE="/var/log/mattermost-backup.log"

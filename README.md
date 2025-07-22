@@ -91,6 +91,37 @@ You can automate the backup process using either a cron job or a systemd timer.
     systemctl list-timers --all
     ```
 
+## Mattermost Backup Status Notifications
+
+This project supports sending backup success/failure messages to a Mattermost channel using an [Incoming Webhook](https://docs.mattermost.com/integrations/incoming-webhooks.html).
+
+### Enable Notifications
+
+1. **Create a Webhook in Mattermost:**
+
+    - Go to **Main Menu -> Integrations -> Incoming Webhooks**
+    - Click **"Add Incoming Webhook"**
+    - Set:
+        - **Channel**: the channel you want to receive messages
+        - Set other fields to your need
+    - Click **Save** and copy the **Webhook URL**
+
+2. **Edit `env.sh`:**
+
+    Add the following line:
+
+    ```bash
+    MATTERMOST_WEBHOOK="https://your-mattermost-url/hooks/xxxxxxxxxx"
+    ```
+
+### Disable Notifications
+
+To disable, simply comment out or remove the MATTERMOST_WEBHOOK line in env.sh:
+
+```bash
+# MATTERMOST_WEBHOOK="..."
+```
+
 ## Restore
 
 To restore from a backup run:

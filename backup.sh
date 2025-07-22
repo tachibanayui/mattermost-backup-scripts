@@ -1,9 +1,33 @@
 #!/bin/bash
 set -euo pipefail
 source env.sh
+trap 'on_failure' ERR
 
-DATE=$(date +%F-%H%M)
-LOG_FILE="/var/log/mattermost-backup.log"
+on_failure() {
+    send_mattermost_notification failed "Backup failed on $(hostname). Check logs at $LOG_FILE"
+    exit 1
+}
+
+send_mattermost_notification() {
+    local status="$1"
+    local message="$2"
+    local color="#00FF00"
+    [ "$status" = "failed" ] && color="#FF0000"
+    [ -z "${MATTERMOST_WEBHOOK:-}" ] && return
+
+    curl -X POST -H 'Content-Type: application/json' \
+        -d "{
+            \"attachments\": [{
+                \"fallback\": \"Backup $status\",
+                \"color\": \"$color\",
+                \"title\": \"Mattermost Backup $status\",
+                \"text\": \"$message\",
+                \"footer\": \"Backup Script\",
+                \"username\": \"Mattermost backup script\",
+                \"ts\": $(date +%s)
+            }]
+        }" "$MATTERMOST_WEBHOOK"
+}
 
 if ! dpkg -s "restic" &>/dev/null; then
     echo "Restic not installed" | tee -a "$LOG_FILE"
@@ -44,3 +68,4 @@ echo "[$DATE] Cleaning up temp files..." | tee -a "$LOG_FILE"
 rm -rf "$TMP_DIR"
 
 echo "[$DATE] Local backup complete!" | tee -a "$LOG_FILE"
+send_mattermost_notification success "Backup completed on $(hostname)."
