@@ -7,8 +7,9 @@ This repository contains a set of Bash scripts for backing up a self-hosted Matt
 -   Backs up:
     -   PostgreSQL database (`pg_dump`)
     -   Mattermost data directory (e.g., `/opt/mattermost/data`)
-    -   Backups are stored at `/mm`, you can customize this by editing `RESTIC_REPO` variable in the `env.sh` file
+    -   By default, backups are stored at `/mm-backup/restic-mattermost`, you can customize this by editing `RESTIC_REPO` variable in the `env.sh` file
 -   Encrypted and deduplicated backups using [`restic`](https://restic.net)
+-   It supports a wide range of backends: local disks, SFTP, AWS S3, Backblaze B2, GCP,... using `restic`
 -   Retention policy:
     -   7 daily
     -   5 weekly
@@ -27,6 +28,7 @@ This repository contains a set of Bash scripts for backing up a self-hosted Matt
 
 1. **Edit config file**:
    Open `env.sh` and edit the config to your deployment
+    > **Note:** If you want to use SFTP as your backup destination, set the `RESTIC_REPO` variable in `env.sh` to the SFTP URL, e.g. `sftp:user@host:/path/to/repo`. Make sure the server is accessible and SSH keys or credentials are configured for authentication.
 2. **Run backup.sh**:
    Run `backup.sh`, the first run will initialize the restic repository, you will be asked to
    create a password for your backups
@@ -49,44 +51,22 @@ You can automate the backup process using either a cron job or a systemd timer.
 
 ### Using a Systemd Timer
 
-1. Create a systemd service file:
+1. Copy the provided service and timer files to the appropriate locations:
+
     ```bash
-    sudo nano /etc/systemd/system/mattermost-backup.service
-    ```
-2. Add the following content to the file:
-
-    ```ini
-    [Unit]
-    Description=Mattermost Backup Service
-
-    [Service]
-    Type=oneshot
-    ExecStart=/path/to/backup.sh
+    sudo cp ./systemd-timers/mattermost-backup.service /etc/systemd/system/
+    sudo cp ./systemd-timers/mattermost-backup.timer /etc/systemd/system/
     ```
 
-3. Create a systemd timer file:
+    **Note:** Before copying, ensure that the `ExecStart` path in `mattermost-backup.service` points to the correct location of your `backup.sh` script.
+
+2. Enable and start the timer:
+
     ```bash
-    sudo nano /etc/systemd/system/mattermost-backup.timer
-    ```
-4. Add the following content to the file:
-
-    ```ini
-    [Unit]
-    Description=Run Mattermost Backup Daily
-
-    [Timer]
-    OnCalendar=*-*-* 02:00:00
-
-    [Install]
-    WantedBy=timers.target
+    sudo systemctl enable mattermost-backup.timer --now
     ```
 
-5. Enable and start the timer:
-    ```bash
-    sudo systemctl enable mattermost-backup.timer
-    sudo systemctl start mattermost-backup.timer
-    ```
-6. Verify the timer is active:
+3. Verify the timer is active:
     ```bash
     systemctl list-timers --all
     ```

@@ -1,0 +1,8 @@
+[Unit]
+Description=Run Mattermost Backup Daily
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+
+[Install]
+WantedBy=timers.target

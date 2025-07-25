@@ -1,0 +1,6 @@
+[Unit]
+Description=Mattermost Backup Service
+
+[Service]
+Type=oneshot
+ExecStart=/path/to/backup.sh
