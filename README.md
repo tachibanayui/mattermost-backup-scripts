@@ -28,7 +28,7 @@ This repository contains a set of Bash scripts for backing up a self-hosted Matt
 
 1. **Edit config file**:
    Open `env.sh` and edit the config to your deployment
-    > **Note:** If you want to use SFTP as your backup destination, set the `RESTIC_REPO` variable in `env.sh` to the SFTP URL, e.g. `sftp:user@host:/path/to/repo`. Make sure the server is accessible and SSH keys or credentials are configured for authentication.
+    > **Note:** If you want to use SFTP as your backup destination, set the `RESTIC_REPO` variable in `env.sh` to the SFTP URL, e.g. `sftp:user@host:/path/to/repo`. Make sure the server is accessible and SSH keys or credentials are configured for authentication, see [here](https://www.jscape.com/blog/setting-up-sftp-public-key-authentication-command-line) for guidance.
 2. **Run backup.sh**:
    Run `backup.sh`, the first run will initialize the restic repository, you will be asked to
    create a password for your backups
